@@ -103,6 +103,7 @@ class JavascriptSlideshowHooks {
         $transition = (isset($options['transition']) ? $options['transition'] : 'cut');
         $transitiontime = (isset($options['transitiontime']) ? $options['transitiontime'] : '400');
         $center = (isset($options['center']) ? $options['center'] : 'false');
+        $thumb = (isset($options['thumb']) ? $options['thumb'] : 'false');
 
         /* validate input*/
 
@@ -120,6 +121,7 @@ class JavascriptSlideshowHooks {
             $styleAttrs = ($center == 'true' ? "style='margin-left:auto;margin-right:auto'" : "");
             $output .= "<div id='$id' class='slideshow' $dataAttrs $styleAttrs >$wikitext</div> ";
             $output .= "<div id='$id-spacer' class='slideshowspacer'></div>";
+            $output .= ($thumb == 'true' ? "<div id='$id-thumbs' class='slideshowthumbs'></div>" : "");
             return $output;
         }
         return '<span class="error">JavascriptSlideshow: ' . wfMessage('javascriptslideshow-error-unknown') -> inContentLanguage() . '</span>';

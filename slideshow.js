@@ -1,6 +1,7 @@
 // @TODO - this file could be fully jQuery-ized, to remove dependence on IDs.
 var slideshowDivs = [];
 var currentDivIndexes = [];
+var thumbDoms = [];
 
 jQuery('.slideshow').each(function() {
 	id = jQuery(this).attr('id');
@@ -156,20 +157,44 @@ function doTransition(parentId, currentNode, newNode) {
 	}
 }
 
-function runSlideshow(id) {
-	var newIndex = getNextDivIndex(id);
-	doTransition(id, getNode(id, currentDivIndexes[id]), getNode(id, newIndex));
+function runSlideshow(id, next) {
+	var oldIndex = currentDivIndexes[id];
+	var newIndex = next == undefined ? getNextDivIndex(id) : next;
+
+	if (oldIndex == newIndex) return;
+	thumbDoms[id][oldIndex].className = "";
+	thumbDoms[id][newIndex].className = "active";
+
+	doTransition(id, getNode(id, oldIndex), getNode(id, newIndex));
 	currentDivIndexes[id] = newIndex;
 }
 
 function startSlideshow(id) {
 	slideshowDivs[id] = getChildDivs(id);
+	thumbDoms[id] = [];
 	if (slideshowDivs[id].length > 0) {
 		var refresh = document.getElementById(id).getAttribute("data-refresh");
 		currentDivIndexes[id] = getInitialDivIndex(id);
 		var tempFunc = function() {
 			runSlideshow(id);
 		};
-		setInterval(tempFunc, refresh);
+		var timer = setInterval(tempFunc, refresh);
+
+		var container = document.getElementById(id + '-thumbs');
+		var thumbs = document.createDocumentFragment();
+		for (i = 0; i < slideshowDivs[id].length; i++) {
+			var t = document.createElement("SPAN");
+			if (i == 0) t.className = "active";
+			t.onclick = (function(idx) {
+				return function() {
+					clearInterval(timer);
+					timer = setInterval(tempFunc, refresh);
+					runSlideshow(id, idx);
+				}
+			})(i);
+			thumbs.appendChild(t);
+			thumbDoms[id][i] = t;
+		}
+		container.appendChild(thumbs);
 	}
 }
